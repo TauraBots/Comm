@@ -1,8 +1,0 @@
-../Core/Inc/Comm/COMM.c:19:6:Comm_Init	16	static
-../Core/Inc/Comm/COMM.c:48:6:Comm_Send_SSL_Message	16	static
-../Core/Inc/Comm/COMM.c:64:6:Comm_Send_VSSS_Message	16	static
-../Core/Inc/Comm/COMM.c:80:6:Comm_Send_DebugText_Message	16	static
-../Core/Inc/Comm/COMM.c:98:6:Comm_Register_SSL_Packet_Handler	16	static
-../Core/Inc/Comm/COMM.c:102:6:Comm_Register_VSSS_Packet_Handler	16	static
-../Core/Inc/Comm/COMM.c:106:6:Comm_Register_DebugText_Packet_Handler	16	static
-../Core/Inc/Comm/COMM.c:110:6:Comm_ProcessReceivedPackets	80	static

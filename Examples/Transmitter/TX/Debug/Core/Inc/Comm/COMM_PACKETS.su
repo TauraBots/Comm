@@ -1,3 +1,0 @@
-../Core/Inc/Comm/COMM_PACKETS.c:4:6:Comm_Packets_Create_VSSSMessage	24	static
-../Core/Inc/Comm/COMM_PACKETS.c:19:6:Comm_Packets_Create_SSLMessage	24	static
-../Core/Inc/Comm/COMM_PACKETS.c:34:6:Comm_Packets_Create_DebugText	24	static
