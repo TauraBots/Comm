@@ -41,7 +41,7 @@ int16_t Comm_Send_SSL_Command(const ssl_command_payload_t* cmd_payload_data);
 int16_t Comm_Send_VSSS_Command(const vsss_command_payload_t* cmd_payload_data);
 int16_t Comm_Send_SSL_Telemetry(const ssl_telemetry_payload_t* tel_payload_data);
 int16_t Comm_Send_VSSS_Telemetry(const vsss_telemetry_payload_t* tel_payload_data);
-bool Comm_Send_DebugText_Message(const char* text_payload);
+int16_t Comm_Send_DebugText_Message(const char* text_payload);
 
 
 // --- Funções de Registro de Callback ---

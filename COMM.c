@@ -60,11 +60,11 @@ int16_t Comm_Send_SSL_Command(const ssl_command_payload_t* cmd_payload_data) {
 int16_t Comm_Send_VSSS_Command(const vsss_command_payload_t* cmd_payload_data) {
     if (cmd_payload_data == NULL) return -1;
     uint8_t current_seq = s_packet_seq_counter++;
-    Comm_Packets_Create_SSLCommand(&s_tx_packet_buffer, current_seq, cmd_payload_data);
+    Comm_Packets_Create_VSSSCommand(&s_tx_packet_buffer, current_seq, cmd_payload_data);
     if (send_packet_p2p(&s_tx_packet_buffer)) {
         return current_seq;
     }
-    return -1; 
+    return -1;
 }
 
 int16_t Comm_Send_SSL_Telemetry(const ssl_telemetry_payload_t* tel_payload_data) {
@@ -80,17 +80,20 @@ int16_t Comm_Send_SSL_Telemetry(const ssl_telemetry_payload_t* tel_payload_data)
 int16_t Comm_Send_VSSS_Telemetry(const vsss_telemetry_payload_t* tel_payload_data) {
     if (tel_payload_data == NULL) return -1;
     uint8_t current_seq = s_packet_seq_counter++;
-    Comm_Packets_Create_SSLTelemetry(&s_tx_packet_buffer, current_seq, tel_payload_data);
+    Comm_Packets_Create_VSSTelemetry(&s_tx_packet_buffer, current_seq, tel_payload_data);
     if (send_packet_p2p(&s_tx_packet_buffer)) {
         return current_seq;
     }
     return -1;
 }
-
-bool Comm_Send_DebugText_Message(const char* text_payload) {
-    if (text_payload == NULL) return false;
-    Comm_Packets_Create_DebugText(&s_tx_packet_buffer, s_packet_seq_counter++, text_payload);
-    return send_packet_p2p(&s_tx_packet_buffer);
+int16_t Comm_Send_DebugText_Message(const char* text_payload) { 
+    if (text_payload == NULL) return -1; 
+    uint8_t current_seq = s_packet_seq_counter++;
+    Comm_Packets_Create_DebugText(&s_tx_packet_buffer, current_seq, text_payload);
+    if (send_packet_p2p(&s_tx_packet_buffer)) {
+        return current_seq; 
+    }
+    return -1;
 }
 
 void Comm_Register_SSL_CommandHandler(comm_ssl_command_handler_t callback) { s_ssl_cmd_handler = callback; }
@@ -119,7 +122,6 @@ void Comm_ProcessReceivedPackets(void) {
                 if (s_vsss_tel_handler != NULL) s_vsss_tel_handler(&s_rx_packet_buffer.payload_u.vsss_tel, s_rx_packet_buffer.payload_u.vsss_tel.robot_id, s_rx_packet_buffer.header.seq_number);
                 break;
             case MAIN_PACKET_TYPE_DEBUG_TEXT:
-                // ... (implementar se necessário) ...
                 break;
             default:
                 printf("Comm: Tipo de pacote principal desconhecido: %d\r\n", s_rx_packet_buffer.header.main_type);
