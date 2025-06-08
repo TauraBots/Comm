@@ -48,28 +48,43 @@ bool Comm_Init_P2P(comm_robot_type_t robot_type,
 }
 
 // --- Funções de Envio ---
-bool Comm_Send_SSL_Command(const ssl_command_payload_t* cmd_payload_data) {
-    if (cmd_payload_data == NULL) return false;
-    Comm_Packets_Create_SSLCommand(&s_tx_packet_buffer, s_packet_seq_counter++, cmd_payload_data);
-    return send_packet_p2p(&s_tx_packet_buffer);
+int16_t Comm_Send_SSL_Command(const ssl_command_payload_t* cmd_payload_data) {
+    if (cmd_payload_data == NULL) return -1;
+    uint8_t current_seq = s_packet_seq_counter++;
+    Comm_Packets_Create_SSLCommand(&s_tx_packet_buffer, current_seq, cmd_payload_data);
+    if (send_packet_p2p(&s_tx_packet_buffer)) {
+        return current_seq;
+    }
+    return -1; 
+}
+int16_t Comm_Send_VSSS_Command(const vsss_command_payload_t* cmd_payload_data) {
+    if (cmd_payload_data == NULL) return -1;
+    uint8_t current_seq = s_packet_seq_counter++;
+    Comm_Packets_Create_SSLCommand(&s_tx_packet_buffer, current_seq, cmd_payload_data);
+    if (send_packet_p2p(&s_tx_packet_buffer)) {
+        return current_seq;
+    }
+    return -1; 
 }
 
-bool Comm_Send_VSSS_Command(const vsss_command_payload_t* cmd_payload_data) {
-    if (cmd_payload_data == NULL) return false;
-    Comm_Packets_Create_VSSSCommand(&s_tx_packet_buffer, s_packet_seq_counter++, cmd_payload_data);
-    return send_packet_p2p(&s_tx_packet_buffer);
+int16_t Comm_Send_SSL_Telemetry(const ssl_telemetry_payload_t* tel_payload_data) {
+    if (tel_payload_data == NULL) return -1;
+    uint8_t current_seq = s_packet_seq_counter++;
+    Comm_Packets_Create_SSLTelemetry(&s_tx_packet_buffer, current_seq, tel_payload_data);
+    if (send_packet_p2p(&s_tx_packet_buffer)) {
+        return current_seq;
+    }
+    return -1;
 }
 
-bool Comm_Send_SSL_Telemetry(const ssl_telemetry_payload_t* tel_payload_data) {
-    if (tel_payload_data == NULL) return false;
-    Comm_Packets_Create_SSLTelemetry(&s_tx_packet_buffer, s_packet_seq_counter++, tel_payload_data);
-    return send_packet_p2p(&s_tx_packet_buffer);
-}
-
-bool Comm_Send_VSSS_Telemetry(const vsss_telemetry_payload_t* tel_payload_data) {
-    if (tel_payload_data == NULL) return false;
-    Comm_Packets_Create_VSSTelemetry(&s_tx_packet_buffer, s_packet_seq_counter++, tel_payload_data);
-    return send_packet_p2p(&s_tx_packet_buffer);
+int16_t Comm_Send_VSSS_Telemetry(const vsss_telemetry_payload_t* tel_payload_data) {
+    if (tel_payload_data == NULL) return -1;
+    uint8_t current_seq = s_packet_seq_counter++;
+    Comm_Packets_Create_SSLTelemetry(&s_tx_packet_buffer, current_seq, tel_payload_data);
+    if (send_packet_p2p(&s_tx_packet_buffer)) {
+        return current_seq;
+    }
+    return -1;
 }
 
 bool Comm_Send_DebugText_Message(const char* text_payload) {

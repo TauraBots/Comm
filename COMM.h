@@ -37,10 +37,10 @@ bool Comm_Init_P2P(comm_robot_type_t robot_type,
                    const uint8_t peer_target_address[5]);
 
 // --- Funções de Envio ---
-bool Comm_Send_SSL_Command(const ssl_command_payload_t* cmd_payload_data);
-bool Comm_Send_VSSS_Command(const vsss_command_payload_t* cmd_payload_data);
-bool Comm_Send_SSL_Telemetry(const ssl_telemetry_payload_t* tel_payload_data);
-bool Comm_Send_VSSS_Telemetry(const vsss_telemetry_payload_t* tel_payload_data);
+int16_t Comm_Send_SSL_Command(const ssl_command_payload_t* cmd_payload_data);
+int16_t Comm_Send_VSSS_Command(const vsss_command_payload_t* cmd_payload_data);
+int16_t Comm_Send_SSL_Telemetry(const ssl_telemetry_payload_t* tel_payload_data);
+int16_t Comm_Send_VSSS_Telemetry(const vsss_telemetry_payload_t* tel_payload_data);
 bool Comm_Send_DebugText_Message(const char* text_payload);
 
 
