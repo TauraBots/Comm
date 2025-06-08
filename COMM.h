@@ -1,12 +1,10 @@
+
 #ifndef COMM_H_
 #define COMM_H_
 
-#include <Comm/COMM_PACKETS.h>
-#include <Comm/NRF24_CORE.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
+#include "COMM_PACKETS.h" 
 
 typedef enum {
     COMM_ROBOT_TYPE_UNDEFINED,
@@ -14,93 +12,47 @@ typedef enum {
     COMM_ROBOT_TYPE_VSSS
 } comm_robot_type_t;
 
-typedef enum {
-    COMM_NODE_MODE_TRANSMITTER,
-    COMM_NODE_MODE_RECEIVER
-} comm_node_mode_t;
-
-// Tipos de Ponteiros de Função para Callbacks de Recepção
-typedef void (*comm_ssl_packet_handler_t)(const ssl_payload_t* ssl_data, uint8_t robot_id_from_payload, uint8_t seq_num);
-typedef void (*comm_vsss_packet_handler_t)(const vsss_payload_t* vsss_data, uint8_t robot_id_from_payload, uint8_t seq_num);
+typedef void (*comm_ssl_command_handler_t)(const ssl_command_payload_t* cmd_data, uint8_t robot_id, uint8_t seq_num);
+typedef void (*comm_vsss_command_handler_t)(const vsss_command_payload_t* cmd_data, uint8_t robot_id, uint8_t seq_num);
+typedef void (*comm_ssl_telemetry_handler_t)(const ssl_telemetry_payload_t* tel_data, uint8_t robot_id, uint8_t seq_num);
+typedef void (*comm_vsss_telemetry_handler_t)(const vsss_telemetry_payload_t* tel_data, uint8_t robot_id, uint8_t seq_num);
 typedef void (*comm_debug_text_handler_t)(const char* text_data, uint8_t seq_num);
 
-// -------------------- Funções de Interface do Módulo de Comunicação --------------------
+
+// -------------------- Funções da Interface do Módulo --------------------
 
 /**
- * @brief Inicializa o módulo de comunicação e o NRF24L01+.
- *
- * @param robot_type O tipo de robô principal para esta instância (COMM_ROBOT_TYPE_SSL ou COMM_ROBOT_TYPE_VSSS).
- * Pode influenciar filtros ou lógicas específicas no futuro.
- * @param node_mode  Define se o nó operará como COMM_NODE_MODE_TRANSMITTER ou COMM_NODE_MODE_RECEIVER.
- * @param channel    Canal RF a ser usado (0-125).
- * @param tx_address Endereço de 5 bytes para transmissão (se transmissor) ou para o Pipe 0 (se receptor, para ACKs).
- * @param rx_pipe1_address Endereço de 5 bytes para o Pipe 1 de recepção (se receptor).
- * @param rx_pipe2_lsb LSB para o Pipe 2 de recepção (se receptor, opcional, pode ser 0 se não usado).
+ * @brief Inicializa o módulo de comunicação P2P e o NRF24L01+.
+ * @param robot_type O tipo de robô principal associado a esta instância.
+ * @param channel Canal RF a ser usado (0-125).
+ * @param my_listening_address Endereço de 5 bytes no qual este nó irá escutar por pacotes.
+ * @param peer_target_address Endereço de 5 bytes do nó parceiro para o qual este nó irá transmitir.
  * @return true se a inicialização foi bem-sucedida, false caso contrário.
  */
-bool Comm_Init(comm_robot_type_t robot_type,
-               comm_node_mode_t node_mode,
-               uint8_t channel,
-               uint8_t* nrf_tx_address,
-               uint8_t* nrf_rx_pipe1_address,
-               uint8_t nrf_rx_pipe2_lsb); // Adicionado nrf_rx_pipe2_lsb
+bool Comm_Init_P2P(comm_robot_type_t robot_type,
+                   uint8_t channel,
+                   const uint8_t my_listening_address[5],
+                   const uint8_t peer_target_address[5]);
 
-// --- Funções para Transmissor ---
-
-/**
- * @brief Envia uma mensagem de controle para um robô SSL.
- * Apenas funciona se Comm_Init foi chamado com COMM_NODE_MODE_TRANSMITTER.
- * @param ssl_payload_data Ponteiro para a estrutura de payload SSL a ser enviada.
- * @return true se a transmissão foi enfileirada/iniciada com sucesso (ACK pendente), false caso contrário.
- */
-bool Comm_Send_SSL_Message(const ssl_payload_t* ssl_payload_data);
-
-/**
- * @brief Envia uma mensagem de controle para um robô VSSS.
- * Apenas funciona se Comm_Init foi chamado com COMM_NODE_MODE_TRANSMITTER.
- * @param vsss_payload_data Ponteiro para a estrutura de payload VSSS a ser enviada.
- * @return true se a transmissão foi enfileirada/iniciada com sucesso (ACK pendente), false caso contrário.
- */
-bool Comm_Send_VSSS_Message(const vsss_payload_t* vsss_payload_data);
-
-/**
- * @brief Envia uma mensagem de texto para debug.
- * Apenas funciona se Comm_Init foi chamado com COMM_NODE_MODE_TRANSMITTER.
- * @param text_payload String de texto a ser enviada.
- * @return true se a transmissão foi enfileirada/iniciada com sucesso, false caso contrário.
- */
+// --- Funções de Envio ---
+bool Comm_Send_SSL_Command(const ssl_command_payload_t* cmd_payload_data);
+bool Comm_Send_VSSS_Command(const vsss_command_payload_t* cmd_payload_data);
+bool Comm_Send_SSL_Telemetry(const ssl_telemetry_payload_t* tel_payload_data);
+bool Comm_Send_VSSS_Telemetry(const vsss_telemetry_payload_t* tel_payload_data);
 bool Comm_Send_DebugText_Message(const char* text_payload);
 
 
-// --- Funções para Receptor ---
-
-/**
- * @brief Registra uma função de callback para ser chamada quando um pacote SSL é recebido.
- * Apenas relevante se Comm_Init foi chamado com COMM_NODE_MODE_RECEIVER.
- * @param callback Ponteiro para a função handler. Passe NULL para desregistrar.
- */
-void Comm_Register_SSL_Packet_Handler(comm_ssl_packet_handler_t callback);
-
-/**
- * @brief Registra uma função de callback para ser chamada quando um pacote VSSS é recebido.
- * Apenas relevante se Comm_Init foi chamado com COMM_NODE_MODE_RECEIVER.
- * @param callback Ponteiro para a função handler. Passe NULL para desregistrar.
- */
-void Comm_Register_VSSS_Packet_Handler(comm_vsss_packet_handler_t callback);
-
-/**
- * @brief Registra uma função de callback para ser chamada quando um pacote de Debug Text é recebido.
- * Apenas relevante se Comm_Init foi chamado com COMM_NODE_MODE_RECEIVER.
- * @param callback Ponteiro para a função handler. Passe NULL para desregistrar.
- */
+// --- Funções de Registro de Callback ---
+void Comm_Register_SSL_CommandHandler(comm_ssl_command_handler_t callback);
+void Comm_Register_VSSS_CommandHandler(comm_vsss_command_handler_t callback);
+void Comm_Register_SSL_TelemetryHandler(comm_ssl_telemetry_handler_t callback);
+void Comm_Register_VSSS_TelemetryHandler(comm_vsss_telemetry_handler_t callback);
 void Comm_Register_DebugText_Packet_Handler(comm_debug_text_handler_t callback);
 
 /**
  * @brief Processa mensagens NRF24L01+ recebidas.
- * Esta função deve ser chamada periodicamente no loop principal do receptor.
- * Ela verifica se há dados, os recebe, interpreta o tipo e chama o callback apropriado.
+ * Esta função deve ser chamada periodicamente no loop principal para verificar por pacotes.
  */
 void Comm_ProcessReceivedPackets(void);
-
 
 #endif /* COMM_H_ */
