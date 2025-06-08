@@ -74,6 +74,7 @@ typedef struct __attribute__((packed)) {
   int32_t motor2_feedback : 18;
   uint8_t battery_level : 8;
   uint8_t reserved_bits : 4;
+  uint8_t command_seq_num_ack;
 } vsss_telemetry_payload_t;
 
 typedef struct __attribute__((packed)) {
@@ -92,6 +93,7 @@ typedef struct __attribute__((packed)) {
   int16_t speed_m3_feedback : 16;
   int16_t speed_m4_feedback : 16;
   uint8_t telemetry_pckt_count : 8;
+  uint8_t command_seq_num_ack;
 } ssl_telemetry_payload_t;
 
 
