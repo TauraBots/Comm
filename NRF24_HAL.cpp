@@ -1,4 +1,5 @@
-#include <Comm/NRF24_HAL.h>
+// Comm/NRF24_HAL.cpp
+#include <Comm/NRF24_HAL.hpp> // Atualizado caminho de inclusão
 
 void NRF24_HAL_CE_Enable(void) {
     HAL_GPIO_WritePin(NRF24_CE_PORT, NRF24_CE_PIN, GPIO_PIN_SET);

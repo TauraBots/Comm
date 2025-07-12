@@ -1,5 +1,6 @@
-#include <Comm/NRF24_CORE.h>
-#include <Comm/NRF24_HAL.h>
+// Comm/NRF24_CORE.cpp
+#include <Comm/NRF24_CORE.hpp> // Atualizado caminho de inclusão
+#include <Comm/NRF24_HAL.hpp> // Atualizado caminho de inclusão
 #include <string.h>
 
 void nrf24_WriteReg(uint8_t Reg, uint8_t Data) {
