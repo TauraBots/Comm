@@ -1,5 +1,6 @@
-#ifndef NRF24_DEF_H_
-#define NRF24_DEF_H_
+// Comm/NRF24_DEF.hpp
+#ifndef NRF24_DEF_HPP_ // Alterada guarda de inclusão
+#define NRF24_DEF_HPP_ // Alterada guarda de inclusão
 
 #include "stm32f4xx_hal.h" 
 
