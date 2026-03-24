@@ -158,8 +158,8 @@ void NRF24_TxMode(uint8_t *Address, uint8_t channel) {
 
     NRF24_HAL_Delay(2);
 
-    NRF24_HAL_CE_Enable();
-    NRF24_HAL_Delay(1);
+    // NRF24_HAL_CE_Enable();
+    // NRF24_HAL_Delay(1);
 }
 
 uint8_t NRF24_Transmit(uint8_t *data, uint8_t size) {
@@ -180,6 +180,9 @@ uint8_t NRF24_Transmit(uint8_t *data, uint8_t size) {
     NRF24_HAL_SPI_Transmit(payload_to_send, 32, 1000);
     NRF24_HAL_CS_UnSelect();
 
+    NRF24_HAL_CE_Enable();
+    NRF24_HAL_Delay(1);      // 1ms é mais que suficiente (o chip precisa de apenas 10us)
+    NRF24_HAL_CE_Disable();  // Retorna para Standby-I
 
     uint32_t start_tick = NRF24_HAL_GetTick();
     uint8_t status_reg;
