@@ -95,9 +95,8 @@ void nrf24_reset_registers(void) {
 
 
 void nrf24_clear_interrupts(void) {
-    uint8_t status = nrf24_ReadReg(STATUS);
-    status |= (1 << RX_DR_BIT) | (1 << TX_DS_BIT) | (1 << MAX_RT_BIT);
-    nrf24_WriteReg(STATUS, status);
+    // Escreve '1' diretamente nos bits para limpar todas as interrupções
+    nrf24_WriteReg(STATUS, (1 << RX_DR_BIT) | (1 << TX_DS_BIT) | (1 << MAX_RT_BIT));
 }
 
 void nrf24_flush_tx(void) {
@@ -200,7 +199,8 @@ uint8_t NRF24_Transmit(uint8_t *data, uint8_t size) {
 
 
 
-    nrf24_WriteReg(STATUS, status_reg | (1 << TX_DS_BIT) | (1 << MAX_RT_BIT));
+    // Escreve '1' APENAS nas flags de TX para limpá-las, sem tocar no RX_DR
+    nrf24_WriteReg(STATUS, (1 << TX_DS_BIT) | (1 << MAX_RT_BIT));
 
     if (status_reg & (1 << TX_DS_BIT)) {
         return 1;
@@ -257,8 +257,8 @@ void NRF24_Receive(uint8_t *data) {
     NRF24_HAL_SPI_Receive(data, 32, 1000);
     NRF24_HAL_CS_UnSelect();
 
-    uint8_t status_reg = nrf24_ReadReg(STATUS);
-    nrf24_WriteReg(STATUS, status_reg | (1 << RX_DR_BIT));
+    // Limpa apenas a flag de recepção (RX_DR)
+    nrf24_WriteReg(STATUS, (1 << RX_DR_BIT));
 
 }
 
