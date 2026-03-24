@@ -218,7 +218,7 @@ void NRF24_RxMode(uint8_t *AddressPipe1, uint8_t AddressPipe2LSB, uint8_t channe
     NRF24_HAL_Delay(5);
 
     nrf24_clear_interrupts();
-    nrf24_flush_rx();
+    // nrf24_flush_rx(); <-- REMOVIDO: Preserva pacotes que chegaram durante a transição
     nrf24_flush_tx();
 
     nrf24_WriteReg(RF_CH, channel);
