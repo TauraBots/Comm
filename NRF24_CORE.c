@@ -142,7 +142,7 @@ void NRF24_Init(void) {
 
 void NRF24_TxMode(uint8_t *Address, uint8_t channel) {
     NRF24_HAL_CE_Disable();
-    NRF24_HAL_Delay(5);
+    // NRF24_HAL_Delay(5);
 
     nrf24_WriteReg(RF_CH, channel);
     nrf24_WriteRegMulti(TX_ADDR, Address, 5);
@@ -155,7 +155,7 @@ void NRF24_TxMode(uint8_t *Address, uint8_t channel) {
     config |= (1 << 2);
     nrf24_WriteReg(CONFIG, config);
 
-    NRF24_HAL_Delay(2);
+    // NRF24_HAL_Delay(2);
 
     // NRF24_HAL_CE_Enable();
     // NRF24_HAL_Delay(1);
@@ -215,7 +215,7 @@ uint8_t NRF24_Transmit(uint8_t *data, uint8_t size) {
 
 void NRF24_RxMode(uint8_t *AddressPipe1, uint8_t AddressPipe2LSB, uint8_t channel) {
     NRF24_HAL_CE_Disable();
-    NRF24_HAL_Delay(5);
+    // NRF24_HAL_Delay(5);
 
     nrf24_clear_interrupts();
     // nrf24_flush_rx(); <-- REMOVIDO: Preserva pacotes que chegaram durante a transição
@@ -234,7 +234,7 @@ void NRF24_RxMode(uint8_t *AddressPipe1, uint8_t AddressPipe2LSB, uint8_t channe
     config |= (1 << 2);
     nrf24_WriteReg(CONFIG, config);
 
-    NRF24_HAL_Delay(2);
+    // NRF24_HAL_Delay(2);
 
     NRF24_HAL_CE_Enable();
     NRF24_HAL_Delay(1);
