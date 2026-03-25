@@ -95,9 +95,8 @@ void nrf24_reset_registers(void) {
 
 
 void nrf24_clear_interrupts(void) {
-    uint8_t status = nrf24_ReadReg(STATUS);
-    status |= (1 << RX_DR_BIT) | (1 << TX_DS_BIT) | (1 << MAX_RT_BIT);
-    nrf24_WriteReg(STATUS, status);
+    // Escreve '1' diretamente nos bits para limpar todas as interrupções
+    nrf24_WriteReg(STATUS, (1 << RX_DR_BIT) | (1 << TX_DS_BIT) | (1 << MAX_RT_BIT));
 }
 
 void nrf24_flush_tx(void) {
@@ -143,7 +142,7 @@ void NRF24_Init(void) {
 
 void NRF24_TxMode(uint8_t *Address, uint8_t channel) {
     NRF24_HAL_CE_Disable();
-    NRF24_HAL_Delay(5);
+    // NRF24_HAL_Delay(5);
 
     nrf24_WriteReg(RF_CH, channel);
     nrf24_WriteRegMulti(TX_ADDR, Address, 5);
@@ -156,10 +155,10 @@ void NRF24_TxMode(uint8_t *Address, uint8_t channel) {
     config |= (1 << 2);
     nrf24_WriteReg(CONFIG, config);
 
-    NRF24_HAL_Delay(2);
+    // NRF24_HAL_Delay(2);
 
-    NRF24_HAL_CE_Enable();
-    NRF24_HAL_Delay(1);
+    // NRF24_HAL_CE_Enable();
+    // NRF24_HAL_Delay(1);
 }
 
 uint8_t NRF24_Transmit(uint8_t *data, uint8_t size) {
@@ -180,6 +179,9 @@ uint8_t NRF24_Transmit(uint8_t *data, uint8_t size) {
     NRF24_HAL_SPI_Transmit(payload_to_send, 32, 1000);
     NRF24_HAL_CS_UnSelect();
 
+    NRF24_HAL_CE_Enable();
+    NRF24_HAL_Delay(1);      // 1ms é mais que suficiente (o chip precisa de apenas 10us)
+    NRF24_HAL_CE_Disable();  // Retorna para Standby-I
 
     uint32_t start_tick = NRF24_HAL_GetTick();
     uint8_t status_reg;
@@ -197,7 +199,8 @@ uint8_t NRF24_Transmit(uint8_t *data, uint8_t size) {
 
 
 
-    nrf24_WriteReg(STATUS, status_reg | (1 << TX_DS_BIT) | (1 << MAX_RT_BIT));
+    // Escreve '1' APENAS nas flags de TX para limpá-las, sem tocar no RX_DR
+    nrf24_WriteReg(STATUS, (1 << TX_DS_BIT) | (1 << MAX_RT_BIT));
 
     if (status_reg & (1 << TX_DS_BIT)) {
         return 1;
@@ -212,10 +215,10 @@ uint8_t NRF24_Transmit(uint8_t *data, uint8_t size) {
 
 void NRF24_RxMode(uint8_t *AddressPipe1, uint8_t AddressPipe2LSB, uint8_t channel) {
     NRF24_HAL_CE_Disable();
-    NRF24_HAL_Delay(5);
+    // NRF24_HAL_Delay(5);
 
     nrf24_clear_interrupts();
-    nrf24_flush_rx();
+    // nrf24_flush_rx(); <-- REMOVIDO: Preserva pacotes que chegaram durante a transição
     nrf24_flush_tx();
 
     nrf24_WriteReg(RF_CH, channel);
@@ -231,7 +234,7 @@ void NRF24_RxMode(uint8_t *AddressPipe1, uint8_t AddressPipe2LSB, uint8_t channe
     config |= (1 << 2);
     nrf24_WriteReg(CONFIG, config);
 
-    NRF24_HAL_Delay(2);
+    // NRF24_HAL_Delay(2);
 
     NRF24_HAL_CE_Enable();
     NRF24_HAL_Delay(1);
@@ -254,8 +257,8 @@ void NRF24_Receive(uint8_t *data) {
     NRF24_HAL_SPI_Receive(data, 32, 1000);
     NRF24_HAL_CS_UnSelect();
 
-    uint8_t status_reg = nrf24_ReadReg(STATUS);
-    nrf24_WriteReg(STATUS, status_reg | (1 << RX_DR_BIT));
+    // Limpa apenas a flag de recepção (RX_DR)
+    nrf24_WriteReg(STATUS, (1 << RX_DR_BIT));
 
 }
 
